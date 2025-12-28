@@ -1,42 +1,40 @@
 using System;
 using ADayInTheOffice.Core;
+using ADayInTheOffice.Data.Defs;
 
 namespace ADayInTheOffice.Systems.Time
 {
-    /// <summary>
-    /// In-game clock for a workday.
-    /// Defaults: 09:00 to 18:00, 1 real second = 1 in-game minute (tunable).
-    /// </summary>
     public sealed class TimeSystem
     {
         private readonly SignalBus _signals;
-
-        public float RealSecondsPerInGameMinute { get; private set; } = 1f;
-
-        public int WorkStartMinute { get; private set; } = 9 * 60;
-        public int WorkEndMinute { get; private set; } = 18 * 60;
-
-        public int CurrentMinuteOfDay { get; private set; }
+        private readonly TimeConfig _cfg;
 
         private float _accum;
 
-        public TimeSystem(SignalBus signals) => _signals = signals;
+        public int CurrentMinuteOfDay { get; private set; }
+        public float RealSecondsPerInGameMinute => _cfg.RealSecondsPerInGameMinute;
 
-        public void InitializeDefaultWorkday()
+        public TimeSystem(SignalBus signals, TimeConfig cfg)
         {
-            CurrentMinuteOfDay = WorkStartMinute;
+            _signals = signals;
+            _cfg = cfg;
+        }
+
+        public void InitializeNewDay()
+        {
+            CurrentMinuteOfDay = _cfg.WorkStartMinute;
             _accum = 0f;
             _signals.Publish(new TimeChangedMsg(CurrentMinuteOfDay));
         }
 
         public void Tick(float dt)
         {
-            if (CurrentMinuteOfDay >= WorkEndMinute) return;
+            if (CurrentMinuteOfDay >= _cfg.WorkEndMinute) return;
 
             _accum += dt;
-            while (_accum >= RealSecondsPerInGameMinute)
+            while (_accum >= _cfg.RealSecondsPerInGameMinute)
             {
-                _accum -= RealSecondsPerInGameMinute;
+                _accum -= _cfg.RealSecondsPerInGameMinute;
                 AdvanceOneMinute();
             }
         }
@@ -46,9 +44,9 @@ namespace ADayInTheOffice.Systems.Time
             CurrentMinuteOfDay++;
             _signals.Publish(new TimeChangedMsg(CurrentMinuteOfDay));
 
-            if (CurrentMinuteOfDay >= WorkEndMinute)
+            if (CurrentMinuteOfDay >= _cfg.WorkEndMinute)
             {
-                CurrentMinuteOfDay = WorkEndMinute;
+                CurrentMinuteOfDay = _cfg.WorkEndMinute;
                 _signals.Publish(new WorkdayEndedMsg());
             }
         }
@@ -65,7 +63,7 @@ namespace ADayInTheOffice.Systems.Time
     public readonly struct TimeChangedMsg
     {
         public readonly int MinuteOfDay;
-        public TimeChangedMsg(int minuteOfDay) => MinuteOfDay = minuteOfDay;
+        public TimeChangedMsg(int minute) => MinuteOfDay = minute;
     }
 
     public readonly struct WorkdayEndedMsg { }
