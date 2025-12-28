@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using ADayInTheOffice.Characters.Player;
 using ADayInTheOffice.Core;
 using ADayInTheOffice.Systems.Time;
+using ADayInTheOffice.Systems.Day;
 
 namespace ADayInTheOffice.Systems.SceneFlow
 {
@@ -20,7 +21,7 @@ namespace ADayInTheOffice.Systems.SceneFlow
             _signals = signals;
             _time = time;
 
-            _signals.Subscribe<WorkdayEndedMsg>(_ => GoToCity());
+            _signals.Subscribe<EndOfDaySummaryConfirmedMsg>(_ => GoToCity());
         }
 
         public void Configure(string office, string city, string home)
@@ -83,6 +84,9 @@ namespace ADayInTheOffice.Systems.SceneFlow
 
         public void SleepAndStartNewDay()
         {
+            var dayStats = ServiceRegistry.Get<ADayInTheOffice.Systems.Day.DayStatsModel>();
+            dayStats.ResetForNewDay();
+
             _time.InitializeNewDay();
             GoToOffice();
         }

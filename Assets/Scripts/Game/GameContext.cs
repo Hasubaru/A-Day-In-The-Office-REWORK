@@ -4,6 +4,7 @@ using ADayInTheOffice.Systems.Time;
 using ADayInTheOffice.Systems.Tasks;
 using ADayInTheOffice.Systems.StressEnergy;
 using ADayInTheOffice.Systems.SceneFlow;
+using ADayInTheOffice.Systems.Day;
 
 namespace ADayInTheOffice.Game
 {
@@ -17,18 +18,36 @@ namespace ADayInTheOffice.Game
         public readonly TaskSystem Tasks;
         public readonly SceneFlowSystem SceneFlow;
 
+        public readonly PauseService Pause;
+        public readonly DayStatsModel DayStats;
+        public readonly DayStatsSystem DayStatsSystem;
+        public readonly EndOfDaySummarySystem EndOfDaySummary;
+
         public GameContext(TimeConfig timeConfig)
         {
+
+            Signals = new SignalBus();
+
+            Pause = new PauseService();
+
             PlayerStats = new PlayerStatsModel();
+            StressEnergy = new StressEnergySystem(Signals, PlayerStats);
+
+            DayStats = new DayStatsModel();
+            DayStatsSystem = new DayStatsSystem(Signals, DayStats);
 
             Time = new TimeSystem(Signals, timeConfig);
-            StressEnergy = new StressEnergySystem(Signals, PlayerStats);
             Tasks = new TaskSystem(Signals, Time, StressEnergy);
+
+            EndOfDaySummary = new EndOfDaySummarySystem(Signals, DayStats, PlayerStats);
+
             SceneFlow = new SceneFlowSystem(Signals, Time);
         }
 
         public void Initialize()
         {
+            ServiceRegistry.Register(Pause);
+            ServiceRegistry.Register(DayStats);
             ServiceRegistry.Register(this);
             ServiceRegistry.Register(Signals);
             ServiceRegistry.Register(Time);
@@ -40,10 +59,13 @@ namespace ADayInTheOffice.Game
             Time.InitializeNewDay();
         }
 
-        public void Tick(float deltaTime)
+        public void Tick(float dt)
         {
-            Time.Tick(deltaTime);
-            Tasks.Tick(deltaTime);
+            if (Pause.IsPaused) return;
+
+            Time.Tick(dt);
+            Tasks.Tick(dt);
         }
+
     }
 }
