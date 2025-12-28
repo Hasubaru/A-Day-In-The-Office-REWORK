@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea308ac65a488c140b42e29a506d2f75, type: 3}
+  m_Name: TaskDef_FixBug
+  m_EditorClassIdentifier: Assembly-CSharp::ADayInTheOffice.Data.Defs.TaskDef
+  Id: fix_bug
+  DisplayName: Fix Bug
+  RequiredWorkstation: 1
+  DurationMinutes: 5
+  StressDeltaOnComplete: 5
+  EnergyDeltaOnComplete: -10

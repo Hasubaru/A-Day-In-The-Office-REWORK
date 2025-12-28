@@ -1,15 +1,15 @@
 using UnityEngine;
 using ADayInTheOffice.Core;
+using ADayInTheOffice.Data.Defs;
 
 namespace ADayInTheOffice.Game
 {
-    /// <summary>
-    /// MonoBehaviour bridge that creates GameContext and ticks it.
-    /// Keep this as the ONLY always-running Update tick source.
-    /// </summary>
     public sealed class GameContextView : MonoBehaviour
     {
         public static bool Exists { get; private set; }
+
+        [Header("Configs")]
+        [SerializeField] private TimeConfig _timeConfig;
 
         private GameContext _ctx;
 
@@ -22,7 +22,15 @@ namespace ADayInTheOffice.Game
             }
 
             Exists = true;
-            _ctx = new GameContext();
+            DontDestroyOnLoad(gameObject);
+
+            if (_timeConfig == null)
+            {
+                Debug.LogError("GameContextView: TimeConfig is NOT assigned.");
+                return;
+            }
+
+            _ctx = new GameContext(_timeConfig);
             _ctx.Initialize();
         }
 

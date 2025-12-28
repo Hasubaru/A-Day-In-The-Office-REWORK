@@ -1,13 +1,12 @@
 using ADayInTheOffice.Core;
+using ADayInTheOffice.Data.Defs;
 using ADayInTheOffice.Systems.Time;
 using ADayInTheOffice.Systems.Tasks;
 using ADayInTheOffice.Systems.StressEnergy;
+using ADayInTheOffice.Systems.SceneFlow;
 
 namespace ADayInTheOffice.Game
 {
-    /// <summary>
-    /// Owns runtime systems/models. Pure C#.
-    /// </summary>
     public sealed class GameContext
     {
         public readonly SignalBus Signals = new();
@@ -16,13 +15,16 @@ namespace ADayInTheOffice.Game
         public readonly PlayerStatsModel PlayerStats;
         public readonly StressEnergySystem StressEnergy;
         public readonly TaskSystem Tasks;
+        public readonly SceneFlowSystem SceneFlow;
 
-        public GameContext()
+        public GameContext(TimeConfig timeConfig)
         {
             PlayerStats = new PlayerStatsModel();
-            Time = new TimeSystem(Signals);
+
+            Time = new TimeSystem(Signals, timeConfig);
             StressEnergy = new StressEnergySystem(Signals, PlayerStats);
             Tasks = new TaskSystem(Signals, Time, StressEnergy);
+            SceneFlow = new SceneFlowSystem(Signals, Time);
         }
 
         public void Initialize()
@@ -33,8 +35,9 @@ namespace ADayInTheOffice.Game
             ServiceRegistry.Register(PlayerStats);
             ServiceRegistry.Register(StressEnergy);
             ServiceRegistry.Register(Tasks);
+            ServiceRegistry.Register(SceneFlow);
 
-            Time.InitializeDefaultWorkday();
+            Time.InitializeNewDay();
         }
 
         public void Tick(float deltaTime)
