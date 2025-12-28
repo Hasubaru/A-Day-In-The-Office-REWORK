@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ADayInTheOffice.Data.Defs.TimeConfig
   WorkStartHour: 9
   WorkEndHour: 18
-  RealSecondsPerInGameMinute: 0.5
+  RealSecondsPerInGameMinute: 0.05
