@@ -84,6 +84,7 @@ namespace ADayInTheOffice.Systems.SceneFlow
 
         public void SleepAndStartNewDay()
         {
+            ServiceRegistry.Get<ADayInTheOffice.Systems.Save.SaveSystem>().SaveNow();
             var dayStats = ServiceRegistry.Get<ADayInTheOffice.Systems.Day.DayStatsModel>();
             dayStats.ResetForNewDay();
 
