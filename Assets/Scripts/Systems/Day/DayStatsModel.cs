@@ -10,7 +10,10 @@ namespace ADayInTheOffice.Systems.Day
             DayIndex++;
             TasksCompletedToday = 0;
         }
-
+        public void SetDayIndex(int day)
+        {
+            DayIndex = day < 1 ? 1 : day;
+        }
         public void AddTaskCompleted() => TasksCompletedToday++;
     }
 }

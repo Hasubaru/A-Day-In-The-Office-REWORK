@@ -15,8 +15,11 @@ namespace ADayInTheOffice.Game
 
         private void Awake()
         {
-            if (Exists)
+            if (Exists) { Destroy(gameObject); return; }
+
+            if (_timeConfig == null)
             {
+                Debug.LogError("GameContextView: TimeConfig missing.");
                 Destroy(gameObject);
                 return;
             }
@@ -24,15 +27,10 @@ namespace ADayInTheOffice.Game
             Exists = true;
             DontDestroyOnLoad(gameObject);
 
-            if (_timeConfig == null)
-            {
-                Debug.LogError("GameContextView: TimeConfig is NOT assigned.");
-                return;
-            }
-
             _ctx = new GameContext(_timeConfig);
             _ctx.Initialize();
         }
+
 
         private void Update()
         {
@@ -43,6 +41,11 @@ namespace ADayInTheOffice.Game
         {
             Exists = false;
             ServiceRegistry.Clear();
+        }
+        private void OnApplicationQuit()
+        {
+            if (ADayInTheOffice.Core.ServiceRegistry.TryGet(out ADayInTheOffice.Systems.Save.SaveSystem save))
+                save.SaveNow();
         }
     }
 }
